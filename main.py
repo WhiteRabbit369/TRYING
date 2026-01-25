@@ -5,8 +5,8 @@ from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTyp
 
 # Config from Environment Variables
 # Configuration (We will set these in Railway environment variables later)
-TELEGRAM_TOKEN = os.getenv("8340372053:AAHm5qLBna7AOBYqUhMb6NOf2cWi59kP8KM")
-TELEGRAM_CHANNEL_ID = int(os.getenv("-1003419266237"))
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+TELEGRAM_CHANNEL_ID = int(os.getenv("TELEGRAM_CHANNEL_ID"))
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 async def handle_channel_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Ensure the post is from the correct channel
