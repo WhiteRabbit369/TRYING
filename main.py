@@ -3,32 +3,55 @@ import requests
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
 
+# Config from Environment Variables
 # Configuration (We will set these in Railway environment variables later)
 TELEGRAM_TOKEN = os.getenv("8340372053:AAHm5qLBna7AOBYqUhMb6NOf2cWi59kP8KM")
 TELEGRAM_CHANNEL_ID = int(os.getenv("-1003419266237"))
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
+async def handle_channel_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    # Ensure the post is from the correct channel
+    if not update.channel_post or update.channel_post.chat_id != TELEGRAM_CHANNEL_ID:
+        return
 
-async def forward_to_discord(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Check if the message is from our specific channel
-    if update.channel_post and update.channel_post.chat_id == TELEGRAM_CHANNEL_ID:
-        content = update.channel_post.text
+    post = update.channel_post
+    caption = post.caption if post.caption else (post.text if post.text else "")
+    
+    file_to_send = None
+    file_name = "file"
+
+    # Identify Media Type
+    if post.photo:
+        # Get the highest resolution photo
+        file_to_send = await post.photo[-1].get_file()
+        file_name = "image.jpg"
+    elif post.video:
+        file_to_send = await post.video.get_file()
+        file_name = "video.mp4"
+
+    if file_to_send:
+        # Download file to memory/temporary storage
+        file_path = await file_to_send.download_to_drive()
         
-        # Prepare the payload for Discord
-        payload = {"content": content}
+        # Send to Discord as a file
+        with open(file_path, 'rb') as f:
+            files = {'file': (file_name, f)}
+            payload = {"content": caption}
+            response = requests.post(DISCORD_WEBHOOK_URL, data=payload, files=files)
         
-        # Send to Discord Webhook
+        # Clean up: Remove the downloaded file after sending
+        os.remove(file_path)
+    else:
+        # Just text
+        payload = {"content": caption}
         response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
-        if response.status_code == 204:
-            print("Message successfully forwarded to Discord!")
-        else:
-            print(f"Failed to send: {response.status_code}, {response.text}")
+
+    print(f"Status: {response.status_code}")
 
 if __name__ == "__main__":
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     
-    # Listen for posts in channels
-    channel_handler = MessageHandler(filters.ChatType.CHANNEL & filters.TEXT, forward_to_discord)
-    app.add_handler(channel_handler)
+    # Listen for text, photos, and videos
+    app.add_handler(MessageHandler(filters.ChatType.CHANNEL & (filters.TEXT | filters.PHOTO | filters.VIDEO), handle_channel_post))
     
-    print("Bot is running...")
+    print("Bot is monitoring media and text...")
     app.run_polling()
