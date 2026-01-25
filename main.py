@@ -9,7 +9,9 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHANNEL_ID = int(os.getenv("TELEGRAM_CHANNEL_ID"))
 DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 async def handle_channel_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Ensure the post is from the correct channel
+    # Add this line right at the start of the function:
+    print(f"New post detected in channel: {update.channel_post.chat_id}")
+    
     if not update.channel_post or update.channel_post.chat_id != TELEGRAM_CHANNEL_ID:
         return
 
