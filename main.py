@@ -8,7 +8,8 @@ from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTyp
 # Configuration (We will set these in Railway environment variables later)
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHANNEL_ID = int(os.getenv("TELEGRAM_CHANNEL_ID"))
-DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
+DISCORD_WEBHOOK_URL_1 = os.getenv("DISCORD_WEBHOOK_URL_1")
+DISCORD_WEBHOOK_URL_2 = os.getenv("DISCORD_WEBHOOK_URL_2")
 async def handle_channel_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Ensure the post is from the correct channel
     # Add this line right at the start of the function:
@@ -40,14 +41,16 @@ async def handle_channel_post(update: Update, context: ContextTypes.DEFAULT_TYPE
         with open(file_path, 'rb') as f:
             files = {'file': (file_name, f)}
             payload = {"content": caption}
-            response = requests.post(DISCORD_WEBHOOK_URL, data=payload, files=files)
+            response = requests.post(DISCORD_WEBHOOK_URL_1, data=payload, files=files)
+            response = requests.post(DISCORD_WEBHOOK_URL_2, data=payload, files=files)
 
         # Clean up: Remove the downloaded file after sending
         os.remove(file_path)
     else:
         # Just text
         payload = {"content": caption}
-        response = requests.post(DISCORD_WEBHOOK_URL, json=payload)
+        response = requests.post(DISCORD_WEBHOOK_URL_1, json=payload)
+        response = requests.post(DISCORD_WEBHOOK_URL_2, json=payload)
 
     print(f"Status: {response.status_code}")
 
