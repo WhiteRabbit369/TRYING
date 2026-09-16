@@ -41,8 +41,11 @@ async def handle_channel_post(update: Update, context: ContextTypes.DEFAULT_TYPE
         with open(file_path, 'rb') as f:
             files = {'file': (file_name, f)}
             payload = {"content": caption}
-            response = requests.post(DISCORD_WEBHOOK_URL_1, data=payload, files=files)
-            response = requests.post(DISCORD_WEBHOOK_URL_2, data=payload, files=files)
+            response = requests.post(DISCORD_WEBHOOK_URL, data=payload, files=files)
+
+with open(file_path, 'rb') as f:
+    files = {'file': (file_name, f)}
+    response2 = requests.post(DISCORD_WEBHOOK_URL_2, data=payload, files=files)
 
         # Clean up: Remove the downloaded file after sending
         os.remove(file_path)
@@ -50,7 +53,7 @@ async def handle_channel_post(update: Update, context: ContextTypes.DEFAULT_TYPE
         # Just text
         payload = {"content": caption}
         response = requests.post(DISCORD_WEBHOOK_URL_1, json=payload)
-        response = requests.post(DISCORD_WEBHOOK_URL_2, json=payload)
+        response2 = requests.post(DISCORD_WEBHOOK_URL_2, json=payload)
 
     print(f"Status: {response.status_code}")
 
