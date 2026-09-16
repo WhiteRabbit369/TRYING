@@ -5,14 +5,12 @@ from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTyp
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHANNEL_ID = int(os.getenv("TELEGRAM_CHANNEL_ID"))
-
 DISCORD_WEBHOOK_URL_1 = os.getenv("DISCORD_WEBHOOK_URL_1")
 DISCORD_WEBHOOK_URL_2 = os.getenv("DISCORD_WEBHOOK_URL_2")
 
 async def handle_channel_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
     if not update.channel_post:
-    return
+        return
 
 post = update.channel_post
 
@@ -30,55 +28,53 @@ if post.photo:
     file_to_send = await post.photo[-1].get_file()
     file_name = "image.jpg"
 
-if post.video:
+elif post.video:
     file_to_send = await post.video.get_file()
     file_name = "video.mp4"
 
 if file_to_send:
-
     file_path = await file_to_send.download_to_drive()
 
     try:
         with open(file_path, "rb") as f:
-            requests.post(
+            response = requests.post(
                 DISCORD_WEBHOOK_URL_1,
                 data={"content": caption},
                 files={"file": (file_name, f)}
             )
-        print("Sent media to Discord Server 1")
+        print("Server 1:", response.status_code)
     except Exception as e:
         print("Server 1 error:", e)
 
     try:
         with open(file_path, "rb") as f:
-            requests.post(
+            response = requests.post(
                 DISCORD_WEBHOOK_URL_2,
                 data={"content": caption},
                 files={"file": (file_name, f)}
             )
-        print("Sent media to Discord Server 2")
+        print("Server 2:", response.status_code)
     except Exception as e:
         print("Server 2 error:", e)
 
     os.remove(file_path)
 
 else:
-
     try:
-        requests.post(
+        response = requests.post(
             DISCORD_WEBHOOK_URL_1,
             json={"content": caption}
         )
-        print("Sent text to Discord Server 1")
+        print("Server 1:", response.status_code)
     except Exception as e:
         print("Server 1 error:", e)
 
     try:
-        requests.post(
+        response = requests.post(
             DISCORD_WEBHOOK_URL_2,
             json={"content": caption}
         )
-        print("Sent text to Discord Server 2")
+        print("Server 2:", response.status_code)
     except Exception as e:
         print("Server 2 error:", e)
 
