@@ -10,10 +10,8 @@ DISCORD_WEBHOOK_URL_1 = os.getenv("DISCORD_WEBHOOK_URL_1")
 DISCORD_WEBHOOK_URL_2 = os.getenv("DISCORD_WEBHOOK_URL_2")
 
 async def handle_channel_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-```
 if not update.channel_post:
-    return
+return
 
 print(f"New post detected in channel: {update.channel_post.chat_id}")
 
@@ -36,18 +34,15 @@ elif post.video:
     file_name = "video.mp4"
 
 if file_to_send:
-
     file_path = await file_to_send.download_to_drive()
 
+    # Discord Server 1
     try:
         with open(file_path, "rb") as f:
-            files = {"file": (file_name, f)}
-            payload = {"content": caption}
-
             response = requests.post(
                 DISCORD_WEBHOOK_URL_1,
-                data=payload,
-                files=files
+                data={"content": caption},
+                files={"file": (file_name, f)}
             )
 
         print(f"Discord Server 1 status: {response.status_code}")
@@ -55,15 +50,13 @@ if file_to_send:
     except Exception as e:
         print(f"Discord Server 1 error: {e}")
 
+    # Discord Server 2
     try:
         with open(file_path, "rb") as f:
-            files = {"file": (file_name, f)}
-            payload = {"content": caption}
-
             response = requests.post(
                 DISCORD_WEBHOOK_URL_2,
-                data=payload,
-                files=files
+                data={"content": caption},
+                files={"file": (file_name, f)}
             )
 
         print(f"Discord Server 2 status: {response.status_code}")
@@ -74,13 +67,13 @@ if file_to_send:
     os.remove(file_path)
 
 else:
+    # Text message
 
-    payload = {"content": caption}
-
+    # Discord Server 1
     try:
         response = requests.post(
             DISCORD_WEBHOOK_URL_1,
-            json=payload
+            json={"content": caption}
         )
 
         print(f"Discord Server 1 status: {response.status_code}")
@@ -88,21 +81,19 @@ else:
     except Exception as e:
         print(f"Discord Server 1 error: {e}")
 
+    # Discord Server 2
     try:
         response = requests.post(
             DISCORD_WEBHOOK_URL_2,
-            json=payload
+            json={"content": caption}
         )
 
         print(f"Discord Server 2 status: {response.status_code}")
 
     except Exception as e:
         print(f"Discord Server 2 error: {e}")
-```
 
 if **name** == "**main**":
-
-```
 app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
 
 app.add_handler(
@@ -118,7 +109,6 @@ app.add_handler(
 )
 
 print("Bot is monitoring media and text...")
-print("Forwarding messages to Discord Server 1 and Server 2...")
+print("Forwarding to Discord Server 1 and Server 2...")
 
 app.run_polling()
-```
