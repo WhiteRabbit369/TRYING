@@ -7,7 +7,8 @@ from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTyp
 # Configuration (We will set these in Railway environment variables later)
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 TELEGRAM_CHANNEL_ID = int(os.getenv("TELEGRAM_CHANNEL_ID"))
-DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
+DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL_1")
+DISCORD_WEBHOOK_URL_2 = os.getenv("DISCORD_WEBHOOK_URL_2")
 async def handle_channel_post(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Add this line right at the start of the function:
     print(f"New post detected in channel: {update.channel_post.chat_id}")
